@@ -1,0 +1,15 @@
+ID_Subject,Idx_Acquisition,Hand,Available_Sensors,ID_Gesture
+02,1,Right,MPU6050,16
+02,2,Right,MPU6050,16
+02,3,Right,MPU6050,16
+02,4,Right,MPU6050,16
+02,5,Right,MPU6050,16
+02,6,Right,MPU6050,16
+02,7,Right,MPU6050,17
+02,8,Right,MPU6050,17
+02,9,Right,MPU6050,17
+02,10,Right,MPU6050,17
+02,11,Right,MPU6050,17
+02,12,Right,MPU6050,17
+02,13,Right,MPU6050,17
+01,1,Left,MPU6050,31
