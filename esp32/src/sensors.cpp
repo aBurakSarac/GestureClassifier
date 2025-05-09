@@ -1,15 +1,15 @@
 #include "sensors.h"
 
 static Adafruit_MPU6050 mpuInstance;
-extern BluetoothSerial btSerial;
+
 
 SensorHandle sensors::initSensors() {
   Wire.begin(21, 22);
   if (!mpuInstance.begin()) {
-    Serial.println("MPU6050 başlatılamadı!");
+    printMessage("MPU6050 başlatılamadı!");
     while (1) delay(1000);
   }
-  Serial.println("MPU6050 hazır. Ölçüm başlıyor...");
+  printMessage("MPU6050 başlatıldı! Ölçüm yapılıyor...");
   return &mpuInstance;
 }
 
@@ -36,14 +36,23 @@ void sensors::collectSamples(SensorHandle m, float acc[][3], float gyro[][3], un
     gyro[i][1] = g.gyro.y;
     gyro[i][2] = g.gyro.z;
 
-    Serial.print(acc[i][0], 6);  Serial.print(',');
-    Serial.print(acc[i][1], 6);  Serial.print(',');
-    Serial.print(acc[i][2], 6);  Serial.print(',');
-    Serial.print(gyro[i][0],6);   Serial.print(',');
-    Serial.print(gyro[i][1],6);   Serial.print(',');
-    Serial.print(gyro[i][2],6);   Serial.print(',');
-    Serial.println(ts[i]);
+    printData(acc[i][0], acc[i][1], acc[i][2],
+      gyro[i][0], gyro[i][1], gyro[i][2], ts[i]);
+
     //10 ms bekle
     nextTime += INTERVAL;
   }
+}
+
+void sensors::printMessage(const char *message) {
+  btSerial.println(message);
+  Serial.println(message);
+}
+
+void sensors::printData(float ax, float ay, float az, float gx, float gy, float gz, unsigned long t) {
+  String out = String(ax, 6) + "," + String(ay, 6) + "," + String(az, 6) + "," +
+               String(gx, 6) + "," + String(gy, 6) + "," + String(gz, 6) + "," +
+               String(t);
+  Serial.println(out);
+  if (btSerial.hasClient()) btSerial.println(out);
 }

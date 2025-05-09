@@ -5,7 +5,7 @@ classdef sensors
         function m = initializeSensors(port, baud)
             % initializeSensors - Initializes the mobile device sensors.
             try
-              m = serialport(port, baud);
+              m = serialport(port, baud, "Timeout", 10);
               configureTerminator(m, "LF");
               flush(m);
               disp("Serial bağlantı hazır: " + port + " @" + num2str(baud) + " baud.");

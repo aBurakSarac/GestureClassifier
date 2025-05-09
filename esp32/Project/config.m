@@ -9,7 +9,7 @@ function cfg = config()
     cfg.BluetoothName = 'ESP32';  % Serial port for sensor connection
     cfg.BTChannel = 1;          % Bluetooth channel for ESP32
     cfg.baudRate = 115200;     % Baud rate for serial communication
-    cfg.COMPort = 'COM6';  % COM port for Windows (e.g., 'COM3')
+    cfg.btPort = 'COM6';  % COM port for Windows (e.g., 'COM3')
     cfg.serialPort = 'COM3';
 
     % Data Collection and Processing

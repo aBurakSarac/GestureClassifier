@@ -4,7 +4,7 @@ function main()
     try
         cfg = config();  % Load configuration settings.
         [gestureName, gestureFolder] = gesture.setup(cfg.GestureFolder);  % Set up environment.
-        m = sensors.initializeSensors(cfg.serialPort, cfg.baudRate);  % Initialize sensors.
+        m = sensors.initializeSensors(cfg.btPort, cfg.baudRate);  % Initialize sensors.
         
         % Collect sensor data and common time vector.
         [acc, gyro, ts] = sensors.collectSamples(m, cfg.TargetSamples);
