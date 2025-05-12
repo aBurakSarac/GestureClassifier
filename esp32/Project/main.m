@@ -4,7 +4,8 @@ function main()
     try
         cfg = config();  % Load configuration settings.
         [gestureName, gestureFolder] = gesture.setup(cfg.GestureFolder);  % Set up environment.
-        m = sensors.initializeSensors(cfg.btPort, cfg.baudRate);  % Initialize sensors.
+        % Check your port in config.m before running the code.
+        m = sensors.initializeSensors(cfg.port, cfg.baudRate);  % Initialize sensors.
         
         % Collect sensor data and common time vector.
         [acc, gyro, ts] = sensors.collectSamples(m, cfg.TargetSamples);
@@ -28,7 +29,7 @@ function main()
             delete(tempFileName);
             disp('Data discarded and deleted. Program exiting.');
         end
-        
+        flush(m);
         clear m;  % Clean up sensor connections.
     catch ME
         disp(['Error: ', ME.message]);

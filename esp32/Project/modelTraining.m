@@ -8,7 +8,7 @@ function main()
     % Main function to prepare data for classification.
     try
         cfg = config();  % Load configuration settings.
-        targetGestures = [16, 17, 22, 23];  % Gestures to process.
+        targetGestures = [15, 16, 17];  % Gestures to process.
         learnerDir = fullfile(cfg.GestureFolder, 'ClassificationLearner');
         if ~exist(learnerDir, 'dir')
             mkdir(learnerDir);
@@ -56,7 +56,7 @@ function prepareGestureData(dataFolder, targetGestures, outputDir)
     acqData = signalsStruct.(fieldName);
     numSamples = size(acqData.acc, 1);
     time = (0:numSamples-1)' / cfg.SampleRate;
-    featuresFirst = classification.extractFeatures(acqData.acc, acqData.gyro, acqData.orientation, time);
+    featuresFirst = classification.extractFeatures(acqData.acc, acqData.gyro, time);
     [tempVector, featureNames] = convertFeaturesToVector(featuresFirst);
     allFeatures = zeros(numFiles, length(tempVector));
     allLabels = zeros(numFiles, 1);
@@ -71,7 +71,7 @@ function prepareGestureData(dataFolder, targetGestures, outputDir)
         dataAcq = signalsStruct.(fieldName);
         numSamples = size(dataAcq.acc, 1);
         time = (0:numSamples-1)' / cfg.SampleRate;
-        features = classification.extractFeatures(dataAcq.acc, dataAcq.gyro, dataAcq.orientation, time);
+        features = classification.extractFeatures(dataAcq.acc, dataAcq.gyro, time);
         [featureVector, names] = convertFeaturesToVector(features);
         if isempty(featureNames)
             featureNames = names;
