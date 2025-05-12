@@ -54,7 +54,7 @@ function plot()
         trialNum = length(dir(fullfile(gestureFolder, '*_combined.png'))) + 1;
         
         % Save sensor plots and a combined plot.
-        files.savePlots(dataAcq.acc, dataAcq.gyro, dataAcq.orientation, dataAcq.mag, timeVec, ...
+        files.savePlots(dataAcq.acc, dataAcq.gyro, timeVec, ...
             gestureFolder, trialNum, currentGesture);
     end
     
