@@ -3,6 +3,8 @@
 
 SensorHandle m;
 BluetoothSerial btSerial;
+static float acc[TARGET_SAMPLES][3], gyro[TARGET_SAMPLES][3];
+static unsigned long ts[TARGET_SAMPLES];
 
 void setup() {
   Serial.begin(115200);
@@ -17,11 +19,6 @@ void setup() {
   m = sensors::initSensors();
   sensors::sensorSettings(m);
 
-  static float acc[TARGET_SAMPLES][3], gyro[TARGET_SAMPLES][3];
-  static unsigned long ts[TARGET_SAMPLES];
-  sensors::printMessage("DATA_START");
-  sensors::collectSamples(m, acc, gyro, ts);
-  sensors::printMessage("DATA_END");
 }
 
 void loop() {
@@ -30,12 +27,26 @@ void loop() {
   bool nowConnected = btSerial.hasClient();
 
   if (wasConnected && !nowConnected) {
-    Serial.println("Bluetooth client disconnected. Restarting...");
-    delay(100);
-    ESP.restart();  // Soft reboot of the board
+    Serial.println("Bluetooth client disconnected.");
+    while (!btSerial.hasClient()) {
+      delay(100);
+    }
+    Serial.println("Client reconnected!");
   }
 
   wasConnected = nowConnected;
 
-  delay(500);
+ 
+
+  if (btSerial.available()) {
+    String cmd = btSerial.readStringUntil('\n');
+    cmd.trim();
+    if (cmd == "COLLECT") {
+      sensors::printMessage("DATA_START");
+      sensors::collectSamples(m, acc, gyro, ts);
+      sensors::printMessage("DATA_END");
+    }
+  }
+  delay(10);
+
 }
