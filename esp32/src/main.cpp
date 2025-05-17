@@ -27,11 +27,11 @@ void loop() {
   bool nowConnected = btSerial.hasClient();
 
   if (wasConnected && !nowConnected) {
-    Serial.println("Bluetooth client disconnected.");
+    sensors::printMessage("Bluetooth client disconnected.");
     while (!btSerial.hasClient()) {
       delay(100);
     }
-    Serial.println("Client reconnected!");
+    sensors::printMessage("Client reconnected!");
   }
 
   wasConnected = nowConnected;

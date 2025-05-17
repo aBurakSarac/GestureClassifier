@@ -1,36 +1,55 @@
 function main()
     % MAIN - Entry point for gesture tool: collect or classify.
-    try
-        cfg = config();  % your existing config.m
-        % 1. Initialize serial link to ESP32
-        m = sensors.initializeSensors(cfg.port, cfg.baudRate);
+        cfg = config();  % your existing config.m       
 
-        % 2. Mode selection
+        % Mode selection
         disp('==== Gesture Tool ====');
         disp('1: Data Collection');
         disp('2: Classification');
         disp('3: Raw Streaming');
-        mode = input('Select mode (1, 2 or 3): ');
-        assert(ismember(mode,[1,2,3]), 'Invalid mode.');
+        disp('4: Extract Features');
+        disp('5: Plot Data');
+        mode = input('Select mode (1, 2, 3, 4 or 5) ');
+        assert(ismember(mode,[1,2,3,4,5]), 'Invalid mode.');
 
         switch mode
             case 1
-                runDataCollection(m, cfg);
+                try
+                    m = sensors.initializeSensors(cfg.port, cfg.baudRate);
+                    runDataCollection(m, cfg);
+                        % 3. Cleanup
+                    flush(m);
+                    clear m;
+            
+                catch ME
+                    disp(['Error: ', ME.message]);
+                    if exist('m','var'), clear m; end
+                    rethrow(ME);
+                end
+                
             case 2
-                runClassification(m, cfg);
+                try
+                    m = sensors.initializeSensors(cfg.port, cfg.baudRate);
+                    runClassification(m, cfg);
+                catch ME
+                    disp(['Error: ', ME.message]);
+                    if exist('m','var'), clear m; end
+                    rethrow(ME);
+                end
             case 3 
-                runRawStreaming  (m, cfg);
+                try
+                    m = sensors.initializeSensors(cfg.port, cfg.baudRate);
+                    runRawStreaming  (m, cfg);
+                catch ME
+                    disp(['Error: ', ME.message]);
+                    if exist('m','var'), clear m; end
+                    rethrow(ME);
+                end
+            case 4
+                runModelTraining();
+            case 5
+
         end
-
-        % 3. Cleanup
-        flush(m);
-        clear m;
-
-    catch ME
-        disp(['Error: ', ME.message]);
-        if exist('m','var'), clear m; end
-        rethrow(ME);
-    end
 end
 
 %% Sub-function: Data Collection (unchanged)
@@ -59,33 +78,50 @@ end
 
 %% Sub-function: Classification
 function runClassification(m, cfg)
-    % Load your exported model (must define predictFcn)
-    mdl = load(fullfile(cfg.GestureFolder,'gestureModel.mat'));
-    predictFcn = mdl.trainedModel.predictFcn;
-
     disp('--- Classification Mode ---');
     fprintf('Collecting %d samples per gesture window.\n', cfg.TargetSamples);
     fprintf('Press Ctrl-C to exit.\n\n');
 
+    % Modeli yükle
+    modelData = load('Data/ClassificationLearner/trainedModel.mat');  % trainedModel burada olmalı
+    trainedModel = modelData.trainedModel;
+
     while true
-        % 1) grab one window
-        writeline(m, "COLLECT"); 
-        [acc, gyro, ts] = sensors.collectSamples(m, cfg.TargetSamples);
-        time = ts/1e6;
-        [acc_c, time_c, idx] = sensors.cropAndAdjustData(acc, time, cfg.TargetSamples);
-        gyro_c = gyro(idx,:);
+        % ESP32'den veri al
+        writeline(m, "COLLECT");
+        [acc, gyro, time] = sensors.collectSamples(m, cfg.TargetSamples);
 
-        % 2) feature extraction (must match training)
-        %feats = classification.extractFeatures(acc_c, gyro_c, time_c);
+        % Özellik çıkarımı (örneğin ortalama, varyans vs.)
+        % Burayı kendi eğitim sırasında kullandığın özelliklere göre doldur
+        features = classification.extractFeatures(acc, gyro, time);
 
-        % 3) predict
-        %label = predictFcn(feats);
-        %fprintf('Predicted Gesture → %s\n\n', string(label));
-        fprintf("acc: %i \n",acc_c)
+        [xVec, varNames] = modelTraining.convertFeaturesToVector(features);
+        featureTable = array2table(xVec, 'VariableNames',varNames);
+        [yfit, scores] = trainedModel.predictFcn(featureTable);
+        [maxScore, ~] = max(scores, [], 2);
+        threshold = 0.7;
 
-        pause(0.5);
+        if maxScore < threshold
+            disp("No gesture recognized");
+        else
+            switch yfit
+                case 0
+                    gesture = '15 - Stop';
+                case 1
+                    gesture = '16 - Turn Left';
+                case 2
+                    gesture = '17 - Turn Right';
+                %otherwise
+                    %gesture = 'No gesture recognized';
+            end
+            fprintf('Result: %s (with confidence %2.f)\n', gesture, maxScore);
+        end
+        % Sonucu yazdır
+        %disp(['Tahmin edilen jest: ', num2str(predictedClass)]);
+
     end
 end
+
 
 function runRawStreaming(m, cfg)
     disp('--- Raw Streaming Mode ---');
@@ -102,5 +138,21 @@ function runRawStreaming(m, cfg)
                 ts(i));
         end
         pause(0.1);
+    end
+end
+
+function runModelTraining()
+    % Main function to prepare data for classification.
+    try
+        cfg = config();  % Load configuration settings.
+        targetGestures = [15, 16, 17];  % Gestures to process.
+        learnerDir = fullfile(cfg.GestureFolder, 'ClassificationLearner');
+        if ~exist(learnerDir, 'dir')
+            mkdir(learnerDir);
+        end
+        modelTraining.prepareGestureData(cfg.GestureFolder, targetGestures, learnerDir);
+        modelTraining.displayInstructions();
+    catch ME
+        rethrow(ME);
     end
 end
