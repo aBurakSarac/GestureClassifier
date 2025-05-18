@@ -43,6 +43,7 @@ void loop() {
     cmd.trim();
     if (cmd == "COLLECT") {
       sensors::printMessage("DATA_START");
+      delay(100);
       sensors::collectSamples(m, acc, gyro, ts);
       sensors::printMessage("DATA_END");
     }

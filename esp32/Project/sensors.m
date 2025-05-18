@@ -21,14 +21,14 @@ classdef sensors
 
           % 1) DATA_START bekle
           disp("Waiting for DATA_START...");
-          pause(1);
           while true
             line = readline(m);
             if startsWith(strtrim(line), "DATA_START")
               break;
             end
           end
-          disp("DATA_START received. Beginning acquisition...");
+          disp("DATA_START received. Please make your gesture...");
+          pause(0.1);
 
           % 2) CSV satırlarını oku
           for i = 1:numSamples

@@ -48,7 +48,7 @@ function main()
             case 4
                 runModelTraining();
             case 5
-
+                plotData();
         end
 end
 
@@ -111,14 +111,15 @@ function runClassification(m, cfg)
                     gesture = '16 - Turn Left';
                 case 2
                     gesture = '17 - Turn Right';
-                %otherwise
-                    %gesture = 'No gesture recognized';
+                otherwise
+                    gesture = 'No gesture';
             end
             fprintf('Result: %s (with confidence %2.f)\n', gesture, maxScore);
+
         end
         % Sonucu yazdır
         %disp(['Tahmin edilen jest: ', num2str(predictedClass)]);
-
+        pause(1);
     end
 end
 
