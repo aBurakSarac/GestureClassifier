@@ -103,6 +103,8 @@ function runClassification(m, cfg)
 
         if maxScore < threshold
             disp("No gesture recognized");
+            fprintf('Result: Not recognized (with confidence %.2f)\n', maxScore);
+
         else
             switch yfit
                 case 0
@@ -119,8 +121,10 @@ function runClassification(m, cfg)
                     gesture = '20 - Rotate';
                 case 6
                     gesture = '23 - Hello';
+                %case 7
+                    %gesture = '24 - Idle';
             end
-            fprintf('Result: %s (with confidence %2.f)\n', gesture, maxScore);
+            fprintf('Result: %s (with confidence %.2f)\n', gesture, maxScore);
 
         end
         % Sonucu yazdır

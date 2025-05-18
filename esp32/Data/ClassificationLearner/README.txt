@@ -4,7 +4,7 @@ Gesture Classification Dataset Documentation
 Dataset Information:
 -------------------
 Total features: 56
-Label encoding: 0-based indices (0, 1, 2, 3)
+Label encoding: 0-based indices (0, 1, 2, 3...)
 
 Using the Classification Learner App:
 --------------------------------
