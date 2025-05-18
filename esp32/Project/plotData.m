@@ -8,7 +8,14 @@ classdef plotData
         
             cfg = config();
             dataFolder = cfg.GestureFolder;
-            
+
+            D = dir(dataFolder);
+            for k = 1:numel(D)
+              n = D(k).name;
+              if D(k).isdir && ~ismember(n, {'.','..'}) && ~isempty(regexp(n,'^\d','once'))
+                  rmdir(fullfile(dataFolder,n),'s');
+              end
+            end
             % Define file paths.
             signalsMatFile = fullfile(dataFolder, 'signalsStructFile.mat');
             metadataCSV = fullfile(dataFolder, 'metadata.csv');

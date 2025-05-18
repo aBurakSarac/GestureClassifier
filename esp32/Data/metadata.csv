@@ -12,7 +12,6 @@ ID_Subject,Idx_Acquisition,Hand,Available_Sensors,ID_Gesture
 02,11,Right,MPU6050,17
 02,12,Right,MPU6050,17
 02,13,Right,MPU6050,17
-01,1,Left,MPU6050,31
 02,14,Right,MPU6050,17
 02,15,Right,MPU6050,17
 02,16,Right,MPU6050,17

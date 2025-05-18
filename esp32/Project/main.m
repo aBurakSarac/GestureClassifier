@@ -48,7 +48,7 @@ function main()
             case 4
                 runModelTraining();
             case 5
-                plotData();
+                plotData.plot();
         end
 end
 
