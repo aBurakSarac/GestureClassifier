@@ -48,6 +48,5 @@ void loop() {
       sensors::printMessage("DATA_END");
     }
   }
-  delay(10);
-
+  delay(1000);
 }

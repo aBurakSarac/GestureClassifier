@@ -76,16 +76,6 @@ classdef classification
                     [~, idxPeak] = max(P1);
                     features.([name '_dom_freq_' axisNames{axis}]) = f(idxPeak);
                     features.([name '_dom_freq_magnitude_' axisNames{axis}]) = P1(idxPeak);
-
-                    specEnergy = sum(P1.^2);
-                    specCentroid = sum(f.*P1)/sum(P1);
-
-                    p = P1/sum(P1);
-                    specEntropy = -sum(p(p>0).*log2(p(p>0)));
-
-                    features.([name '_spec_energy_' axisNames{axis}]) = specEnergy;
-                    features.([name '_spec_centroid_' axisNames{axis}]) = specCentroid;
-                    features.([name '_spec_entropy_' axisNames{axis}]) = specEntropy;
                 end
             end
         end

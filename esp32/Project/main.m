@@ -83,8 +83,8 @@ function runClassification(m, cfg)
     fprintf('Press Ctrl-C to exit.\n\n');
 
     % Modeli yükle
-    modelData = load('Data/ClassificationLearner/trainedModel.mat');  % trainedModel burada olmalı
-    trainedModel = modelData.trainedModel;
+    modelData = load('Data/ClassificationLearner/wideNeuralNetwork.mat');
+    trainedModel = modelData.wideNeuralNetwork;
 
     while true
         % ESP32'den veri al
@@ -106,13 +106,19 @@ function runClassification(m, cfg)
         else
             switch yfit
                 case 0
-                    gesture = '15 - Stop';
+                    gesture = '13 - Come';
                 case 1
-                    gesture = '16 - Turn Left';
+                    gesture = '15 - Stop';
                 case 2
+                    gesture = '16 - Turn Left';
+                case 3
                     gesture = '17 - Turn Right';
-                otherwise
-                    gesture = 'No gesture';
+                case 4
+                    gesture = '19 - Sit Down';
+                case 5
+                    gesture = '20 - Rotate';
+                case 6
+                    gesture = '23 - Hello';
             end
             fprintf('Result: %s (with confidence %2.f)\n', gesture, maxScore);
 
@@ -146,7 +152,7 @@ function runModelTraining()
     % Main function to prepare data for classification.
     try
         cfg = config();  % Load configuration settings.
-        targetGestures = [15, 16, 17];  % Gestures to process.
+        targetGestures = [13, 15, 16, 17, 19, 20, 23];  % Gestures to process.
         learnerDir = fullfile(cfg.GestureFolder, 'ClassificationLearner');
         if ~exist(learnerDir, 'dir')
             mkdir(learnerDir);
