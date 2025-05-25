@@ -105,7 +105,7 @@ classdef files
         end
 
         function plotCombinedData(accData, gyroData, time, folder, gestureName, trialNum)
-            % plotCombinedData - Creates a 2x2 plot of sensor data and saves the figure.
+            % plotCombinedData - Creates a plot of both sensor data and saves the figure.
             try
                 fig = figure('Position', [100, 100, 1280, 800]);
                 subplot(2,2,1);
@@ -154,16 +154,14 @@ classdef files
         function metadata = handleMetadata(gestureName, trialNum, dataFolder)
             % handleMetadata - Collects metadata for the gesture recording.
             % Prompts the user for the following fields:
-            %   ID_Subject, Hand, Smartphone_model, Available_Sensors, ID_Gesture.
+            % ID_Subject, Hand, Available_Sensors, ID_Gesture.
             % Idx_Acquisition is computed automatically.
             % The CSV file will record fields in the order:
-            %   ID_Subject, Idx_Acquisition, Hand, Smartphone_model, Available_Sensors, ID_Gesture.
+            % ID_Subject, Idx_Acquisition, Hand, Available_Sensors, ID_Gesture.
             
             disp('Metadata provides details about the collected gesture data:');
             disp('  ID_Subject: The subject identifier (padded to two digits).');
             disp('  Hand: The hand used during the acquisition.');
-            disp('  Available_Sensors: Lists the sensors available (default "MPU6050").');
-            disp('  ID_Gesture: The gesture identifier (set to the gesture name).');
             disp('Note: Idx_Acquisition will be computed automatically based on the subject''s acquisitions.');
             
             choice = input('Would you like to use a preset for metadata? (1, 2, 3, or 4 for presets, or any other key to enter manually): ', 's');

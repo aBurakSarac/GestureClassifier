@@ -1,6 +1,6 @@
 function main()
     % MAIN - Entry point for gesture tool: collect or classify.
-        cfg = config();  % your existing config.m       
+        cfg = config();  
 
         % Mode selection
         disp('==== Gesture Tool ====');
@@ -17,7 +17,6 @@ function main()
                 try
                     m = sensors.initializeSensors(cfg.port, cfg.baudRate);
                     runDataCollection(m, cfg);
-                        % 3. Cleanup
                     flush(m);
                     clear m;
             
@@ -52,9 +51,7 @@ function main()
         end
 end
 
-%% Sub-function: Data Collection (unchanged)
 function runDataCollection(m, cfg)
-    % identical to your old main: collect samples, ask to save, etc.
     [gestureName, gestureFolder] = gesture.setup(cfg.GestureFolder);
     writeline(m, "COLLECT");
     [acc, gyro, ts] = sensors.collectSamples(m, cfg.TargetSamples);
@@ -76,59 +73,33 @@ function runDataCollection(m, cfg)
     end
 end
 
-%% Sub-function: Classification
 function runClassification(m, cfg)
     disp('--- Classification Mode ---');
     fprintf('Collecting %d samples per gesture window.\n', cfg.TargetSamples);
     fprintf('Press Ctrl-C to exit.\n\n');
-
-    % Modeli yükle
-    modelData = load('Data/ClassificationLearner/wideNeuralNetwork.mat');
-    trainedModel = modelData.wideNeuralNetwork;
-
     while true
-        % ESP32'den veri al
         writeline(m, "COLLECT");
         [acc, gyro, time] = sensors.collectSamples(m, cfg.TargetSamples);
 
-        % Özellik çıkarımı (örneğin ortalama, varyans vs.)
-        % Burayı kendi eğitim sırasında kullandığın özelliklere göre doldur
         features = classification.extractFeatures(acc, gyro, time);
 
         [xVec, varNames] = modelTraining.convertFeaturesToVector(features);
         featureTable = array2table(xVec, 'VariableNames',varNames);
-        [yfit, scores] = trainedModel.predictFcn(featureTable);
+        [yfit, scores] = cfg.trainedModel.predictFcn(featureTable);
         [maxScore, ~] = max(scores, [], 2);
-        threshold = 0.7;
 
-        if maxScore < threshold
+        if maxScore < cfg.threshold
             disp("No gesture recognized");
             fprintf('Result: Not recognized (with confidence %.2f)\n', maxScore);
 
         else
-            switch yfit
-                case 0
-                    gesture = '13 - Come';
-                case 1
-                    gesture = '15 - Stop';
-                case 2
-                    gesture = '16 - Turn Left';
-                case 3
-                    gesture = '17 - Turn Right';
-                case 4
-                    gesture = '19 - Sit Down';
-                case 5
-                    gesture = '20 - Rotate';
-                case 6
-                    gesture = '23 - Hello';
-                %case 7
-                    %gesture = '24 - Idle';
+            if yfit >= 0 && yfit < numel(cfg.labelMap)
+                gesture = cfg.labelMap{yfit + 1};
+                fprintf('Result: %s (with confidence %.2f)\n', gesture, maxScore);
+            else
+                fprintf('Unknown gesture index %d (confidence %.2f)\n', yfit, maxScore);
             end
-            fprintf('Result: %s (with confidence %.2f)\n', gesture, maxScore);
-
         end
-        % Sonucu yazdır
-        %disp(['Tahmin edilen jest: ', num2str(predictedClass)]);
         pause(1);
     end
 end
@@ -155,13 +126,10 @@ end
 function runModelTraining()
     % Main function to prepare data for classification.
     try
-        cfg = config();  % Load configuration settings.
-        targetGestures = [13, 15, 16, 17, 19, 20, 23];  % Gestures to process.
-        learnerDir = fullfile(cfg.GestureFolder, 'ClassificationLearner');
-        if ~exist(learnerDir, 'dir')
-            mkdir(learnerDir);
+        if ~exist(cfg.learnerDir, 'dir')
+            mkdir(cfg.learnerDir);
         end
-        modelTraining.prepareGestureData(cfg.GestureFolder, targetGestures, learnerDir);
+        modelTraining.prepareGestureData(cfg.GestureFolder, cfg.targetGestures, cfg.learnerDir);
         modelTraining.displayInstructions();
     catch ME
         rethrow(ME);

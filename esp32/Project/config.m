@@ -30,8 +30,24 @@ function cfg = config()
     cfg.CrossValidationFolds = 5;      % Number of folds for cross-validation
     
     % Machine Learning Configuration
+    cfg.learnerDir = fullfile(cfg.GestureFolder, 'ClassificationLearner');
+    cfg.targetGestures = [13, 15, 16, 17, 19, 20, 23];  % Gestures to process.
     cfg.ClassificationMethod = 'SVM';  % Default classification algorithm
     cfg.ModelSavePath = fullfile(cfg.GestureFolder, 'trained_model.mat');
+    cfg.modelData = load('Data/ClassificationLearner/wideNeuralNetwork.mat');
+    cfg.trainedModel = cfg.modelData.wideNeuralNetwork;
+    cfg.threshold = 0.7;
+    % Gesture label mapping (index corresponds to predicted label)
+    cfg.labelMap = {
+        '13 - Come';       % yfit == 0
+        '15 - Stop';       % yfit == 1
+        '16 - Turn Left';  % yfit == 2
+        '17 - Turn Right'; % yfit == 3
+        '19 - Sit Down';   % yfit == 4
+        '20 - Rotate';     % yfit == 5
+        '23 - Hello'       % yfit == 6
+    };
+
     
     % Logging and Debugging
     cfg.EnableDetailedLogging = true;
