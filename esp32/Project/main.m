@@ -74,6 +74,9 @@ function runDataCollection(m, cfg)
 end
 
 function runClassification(m, cfg)
+    NET.addAssembly('System.Speech');
+    speaker = System.Speech.Synthesis.SpeechSynthesizer;
+
     disp('--- Classification Mode ---');
     fprintf('Collecting %d samples per gesture window.\n', cfg.TargetSamples);
     fprintf('Press Ctrl-C to exit.\n\n');
@@ -95,12 +98,19 @@ function runClassification(m, cfg)
         else
             if yfit >= 0 && yfit < numel(cfg.labelMap)
                 gesture = cfg.labelMap{yfit + 1};
+                dashIdx    = strfind(gesture, '-');    % '-' konumunu bul
+                if ~isempty(dashIdx)
+                    name = strtrim(gesture(dashIdx(1)+1:end));
+                else
+                    name = strtrim(gesture);
+                end
                 fprintf('Result: %s (with confidence %.2f)\n', gesture, maxScore);
+                speaker.Speak(name);
             else
                 fprintf('Unknown gesture index %d (confidence %.2f)\n', yfit, maxScore);
             end
         end
-        pause(1);
+        %pause(1);
     end
 end
 
